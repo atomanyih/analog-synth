@@ -3,18 +3,18 @@ import Stats from 'stats-js';
 import {saw, sin, square, triangle} from "./Waves";
 
 import * as dat from 'dat.gui';
-import createSynth from "./Synth";
+import {freqFromParams} from "./freqFromParams";
 
 const oscParameterDefinitions = {
   freqExp: {
     init: 0,
-    min: -1,
-    max: 5
+    min: -3,
+    max: 2
   },
   freqFine: {
     init: 0,
     min: 0,
-    max: 5
+    max: 100
   },
   // sync: 0,
   // wave: 'sine',
@@ -70,8 +70,8 @@ const saveImageData = (imageData) => {
 
 const getPast = (i) => {
   let maybeImageData = prevImageDatas[1];
-  if(maybeImageData) {
-    return maybeImageData.data[i+2] / 255
+  if (maybeImageData) {
+    return maybeImageData.data[i + 2] / 255
   }
   return 0
 };
@@ -79,8 +79,6 @@ const getPast = (i) => {
 // eventually do transforms... but HOW? shader?
 // create scaling thing
 //
-
-
 
 const cancel = startAnimationLoop((t) => {
   stats.begin();
@@ -91,10 +89,27 @@ const cancel = startAnimationLoop((t) => {
 
   const data = imageData.data;
 
+  const osc1Freq = freqFromParams(osc1Parameters.freqExp, osc1Parameters.freqFine);
+  const osc2Freq = freqFromParams(osc2Parameters.freqExp, osc2Parameters.freqFine);
+  const osc3Freq = freqFromParams(osc3Parameters.freqExp, osc3Parameters.freqFine);
+
   for (let i = 0; i < data.length; i += 4) {
-    let osc1Val = triangle(1 / 499, getPast(i) * osc1Parameters.mod, i + t / 10);
-    let osc2Val = square(1 / 199, osc1Val * osc2Parameters.mod, i);
-    let osc3Val = sin(1 / 501, osc2Val * osc3Parameters.mod, i);
+    const osc1Val = triangle(
+      osc1Freq,
+      getPast(i) * osc1Parameters.mod,
+      i + t / 10
+    );
+    const osc2Val = square(
+      osc2Freq,
+      osc1Val * osc2Parameters.mod,
+      i
+    );
+
+    const osc3Val = triangle(
+      osc3Freq,
+      osc2Val * osc3Parameters.mod,
+      i
+    );
     data[i] = (osc1Val + 1) / 2 * 255 * osc1Parameters.mix;
     data[i + 1] = (osc2Val + 1) / 2 * 255 * osc2Parameters.mix;
     data[i + 2] = (osc3Val + 1) / 2 * 255 * osc3Parameters.mix;
