@@ -65,7 +65,7 @@ let prevImageDatas = [];
 
 const saveImageData = (imageData) => {
   prevImageDatas.unshift(imageData);
-  prevImageDatas.slice(0, 5);
+  prevImageDatas = prevImageDatas.slice(0, 5);
 };
 
 const getPast = (i) => {
