@@ -18,5 +18,26 @@ I guess I could also change default state. but this will be handy and a good thi
 
 - will start with simple: just an object in another file that is mutated
   - however, initialization code lives in `index`, which gets re-run every hot reload
-  - state would have to be initialized in the other file, not imperatively in `index.ts` 
+  - state would have to be initialized in the other file, not imperatively in `index.ts
+
+ok maybe later. for now just better defaults
+
+#### sync
+
+sync values become less meaningful as frequency decreases
+
+I still need a better way to deal with this. maybe try the idea from yesterday: `t+i * refreshRate/dataLength`  
+however, my guess is that this may totally change up the calibration of freq function. now this enters into "refresh rate" timescale?
+
+what exactly does this mean? compare     
+`i + t / 20` frequency corresponds to pixels    
+`t + i * timePerPixel`  
+`timePerPixel = refreshTime / numPixels = (1000/60) / numPixels`  
+prev, 1px ~= 1ms, now 1px =  1000 / 60 / 62,500 = ~0.2ms
+
+sync? or drift. the version I did for the canopy drifted and you could control the "drift" rate  
+the first example above is more akin to "drift"
+
+maybe do trails next, tho
+ 
  

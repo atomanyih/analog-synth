@@ -5,7 +5,9 @@ import {saw, sin, square, triangle} from "./Waves";
 import * as dat from 'dat.gui';
 import {freqFromParams} from "./freqFromParams";
 
-interface ParameterDefinition {
+type ParameterDefinition = NumberParameterDefinition
+
+interface NumberParameterDefinition {
   init: number,
   min: number,
   max: number
@@ -15,21 +17,26 @@ interface OscillatorParameters {
   freqExp: number,
   freqFine: number,
   mod: number,
-  mix: number
+  mix: number,
+  sync: number
 }
 
 const oscParameterDefinitions : {[paramName : string] : ParameterDefinition} = {
   freqExp: {
-    init: -1,
+    init: -0.6,
     min: -3,
-    max: 2
+    max: 4
   },
   freqFine: {
-    init: 0,
+    init: 5,
     min: 0,
     max: 100
   },
-  // sync: 0,
+  sync: {
+    init: 0,
+    min: 0,
+    max: 1
+  },
   // wave: 'sine',
   // pulseWidth: 0.5,
   // mix: 1,
@@ -107,22 +114,25 @@ const cancel = startAnimationLoop((t) => {
   const osc2Freq = freqFromParams(osc2Parameters.freqExp, osc2Parameters.freqFine);
   const osc3Freq = freqFromParams(osc3Parameters.freqExp, osc3Parameters.freqFine);
 
+  const timePerFrame = 1000/24;
+  const timePerPixel = timePerFrame/data.length;
+
   for (let i = 0; i < data.length; i += 4) {
-    const osc1Val = triangle(
+    const osc1Val = square(
       osc1Freq,
       getPast(i) * osc1Parameters.mod,
-      i + t / 10
+      t + i * timePerPixel
     );
     const osc2Val = square(
       osc2Freq,
       osc1Val * osc2Parameters.mod,
-      i
+      t + i * timePerPixel
     );
 
     const osc3Val = triangle(
       osc3Freq,
       osc2Val * osc3Parameters.mod,
-      i
+      t + i * timePerPixel
     );
     data[i] = (osc1Val + 1) / 2 * 255 * osc1Parameters.mix;
     data[i + 1] = (osc2Val + 1) / 2 * 255 * osc2Parameters.mix;
