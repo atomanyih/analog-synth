@@ -57,3 +57,10 @@ const adjustedT = t + (currentPixelBeingRendered - currentPixelAtT) * timePerPix
 ```
 
 still not sure yet how to do sync for this. one way to think about it is removing the "time" component entirely, just rendering based on `index`
+
+seems like the frame jumps periodically. not sure why
+
+#### trails
+
+adding trails was surprisingly easy. only thing is that I'm doing additive color rn (`pixel = newValue + oldValue * trailsAmount`).  
+[] experiment with other blend modes?

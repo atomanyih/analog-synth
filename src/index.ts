@@ -52,7 +52,13 @@ const oscParameterDefinitions : {[paramName : string] : ParameterDefinition} = {
   }
 };
 
+const trailsParameters = {
+  trailsAmount: 0
+};
+
 const gui = new dat.GUI({name: 'hello'});
+
+gui.add(trailsParameters, 'trailsAmount', 0, 1);
 
 const createOscFolder : (name:string) => OscillatorParameters = name => {
   const oscFolder = gui.addFolder(name);
@@ -92,7 +98,7 @@ const saveImageData = (imageData) => {
 const getPast = (i) => {
   let maybeImageData = prevImageDatas[1];
   if (maybeImageData) {
-    return maybeImageData.data[i + 2] / 255
+    return maybeImageData.data[i]
   }
   return 0
 };
@@ -100,6 +106,7 @@ const getPast = (i) => {
 // eventually do transforms... but HOW? shader?
 // create scaling thing
 //
+
 
 const cancel = startAnimationLoop((t) => {
   stats.begin();
@@ -109,6 +116,8 @@ const cancel = startAnimationLoop((t) => {
   const imageData = ctx.createImageData(canvasWidth, canvasHeight);
 
   const data = imageData.data;
+
+  const {trailsAmount} = trailsParameters;
 
   const osc1Freq = freqFromParams(osc1Parameters.freqExp, osc1Parameters.freqFine);
   const osc2Freq = freqFromParams(osc2Parameters.freqExp, osc2Parameters.freqFine);
@@ -128,9 +137,9 @@ const cancel = startAnimationLoop((t) => {
     // }
     const adjustedT = t + (i - currentPixel) * timePerPixel;
 
-    const osc1Val = square(
+    const osc1Val = saw(
       osc1Freq,
-      getPast(i) * osc1Parameters.mod,
+      getPast(i + 2) / 255 * osc1Parameters.mod,
       adjustedT
     );
     const osc2Val = square(
@@ -144,9 +153,9 @@ const cancel = startAnimationLoop((t) => {
       osc2Val * osc3Parameters.mod,
       adjustedT
     );
-    data[i] = (osc1Val + 1) / 2 * 255 * osc1Parameters.mix;
-    data[i + 1] = (osc2Val + 1) / 2 * 255 * osc2Parameters.mix;
-    data[i + 2] = (osc3Val + 1) / 2 * 255 * osc3Parameters.mix;
+    data[i] = (osc1Val + 1) / 2 * 255 * osc1Parameters.mix + trailsAmount * getPast(i);
+    data[i + 1] = (osc2Val + 1) / 2 * 255 * osc2Parameters.mix + trailsAmount * getPast(i + 1);
+    data[i + 2] = (osc3Val + 1) / 2 * 255 * osc3Parameters.mix + trailsAmount * getPast(i + 2);
     data[i + 3] = 255
   }
 
