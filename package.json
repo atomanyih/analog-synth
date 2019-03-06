@@ -1,0 +1,26 @@
+{
+  "name": "analogsynth",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "start": "parcel src/index.html"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.3.4",
+    "@babel/preset-env": "^7.3.4",
+    "@babel/preset-typescript": "^7.3.3",
+    "@types/jest": "^24.0.9",
+    "@types/parcel-env": "0.0.0",
+    "jest": "^24.1.0",
+    "mock-raf": "^1.0.1",
+    "parcel-bundler": "^1.11.0",
+    "typescript": "^3.3.3333"
+  },
+  "dependencies": {
+    "stats-js": "^1.0.0"
+  }
+}
