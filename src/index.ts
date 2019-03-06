@@ -18,13 +18,13 @@ interface OscillatorParameters {
   mix: number
 }
 
-const oscParameterDefinitions = {
-  freqExp: <ParameterDefinition>{
-    init: 0,
+const oscParameterDefinitions : {[paramName : string] : ParameterDefinition} = {
+  freqExp: {
+    init: -1,
     min: -3,
     max: 2
   },
-  freqFine: <ParameterDefinition>{
+  freqFine: {
     init: 0,
     min: 0,
     max: 100
@@ -33,12 +33,12 @@ const oscParameterDefinitions = {
   // wave: 'sine',
   // pulseWidth: 0.5,
   // mix: 1,
-  mod: <ParameterDefinition>{
+  mod: {
     init: 0,
     min: 0,
     max: 1
   },
-  mix: <ParameterDefinition>{
+  mix: {
     init: 1,
     min: 0,
     max: 1
