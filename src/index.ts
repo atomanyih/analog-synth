@@ -23,12 +23,12 @@ interface OscillatorParameters {
 
 const oscParameterDefinitions : {[paramName : string] : ParameterDefinition} = {
   freqExp: {
-    init: -0.6,
+    init: -0.65,
     min: -3,
     max: 4
   },
   freqFine: {
-    init: 5,
+    init: 0,
     min: 0,
     max: 100
   },
@@ -117,22 +117,32 @@ const cancel = startAnimationLoop((t) => {
   const timePerFrame = 1000/24;
   const timePerPixel = timePerFrame/data.length;
 
+  const currentPixel = Math.floor(t / timePerPixel) % data.length;
+
   for (let i = 0; i < data.length; i += 4) {
+    // if(i / 4 == currentPixel) {
+    //   data[i] = 255;
+    //   data[i + 1] =255;
+    //   data[i + 2] = 255;
+    //   data[i + 3] = 255
+    // }
+    const adjustedT = t + (i - currentPixel) * timePerPixel;
+
     const osc1Val = square(
       osc1Freq,
       getPast(i) * osc1Parameters.mod,
-      t + i * timePerPixel
+      adjustedT
     );
     const osc2Val = square(
       osc2Freq,
       osc1Val * osc2Parameters.mod,
-      t + i * timePerPixel
+      adjustedT
     );
 
     const osc3Val = triangle(
       osc3Freq,
       osc2Val * osc3Parameters.mod,
-      t + i * timePerPixel
+      adjustedT
     );
     data[i] = (osc1Val + 1) / 2 * 255 * osc1Parameters.mix;
     data[i + 1] = (osc2Val + 1) / 2 * 255 * osc2Parameters.mix;

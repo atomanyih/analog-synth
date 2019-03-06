@@ -38,6 +38,9 @@ prev, 1px ~= 1ms, now 1px =  1000 / 60 / 62,500 = ~0.2ms
 sync? or drift. the version I did for the canopy drifted and you could control the "drift" rate  
 the first example above is more akin to "drift"
 
-maybe do trails next, tho
+the sync model as doesn't simulate consistent frames: `t` is frame time on the computer, but not of the simulated synth  
+the pixels should be drawn as though the frames are regular, I think
+
+simulation: oscillator rendering to screen with particular refresh rate. each frame of rendering is taking a snapshot of the screen at that time
  
- 
+can convert `t` to "where would the scan line be"
