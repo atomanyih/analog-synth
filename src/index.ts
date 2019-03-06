@@ -92,11 +92,11 @@ const cancel = startAnimationLoop((t) => {
   const data = imageData.data;
 
   for (let i = 0; i < data.length; i += 4) {
-    let osc1Val = triangle(1 / 499, getPast(i), i + t / 10);
-    let osc2Val = square(1 / 199, osc1Val, i);
-    let osc3Val = sin(1 / 501, getPast(i) * osc1Val, i);
+    let osc1Val = triangle(1 / 499, getPast(i) * osc1Parameters.mod, i + t / 10);
+    let osc2Val = square(1 / 199, osc1Val * osc2Parameters.mod, i);
+    let osc3Val = sin(1 / 501, osc2Val * osc3Parameters.mod, i);
     data[i] = (osc1Val + 1) / 2 * 255 * osc1Parameters.mix;
-    // data[i + 1] = (osc2Val + 1) / 2 * 255 * osc2Parameters.mix;
+    data[i + 1] = (osc2Val + 1) / 2 * 255 * osc2Parameters.mix;
     data[i + 2] = (osc3Val + 1) / 2 * 255 * osc3Parameters.mix;
     data[i + 3] = 255
   }
