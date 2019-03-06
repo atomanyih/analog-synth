@@ -5,13 +5,26 @@ import {saw, sin, square, triangle} from "./Waves";
 import * as dat from 'dat.gui';
 import {freqFromParams} from "./freqFromParams";
 
+interface ParameterDefinition {
+  init: number,
+  min: number,
+  max: number
+}
+
+interface OscillatorParameters {
+  freqExp: number,
+  freqFine: number,
+  mod: number,
+  mix: number
+}
+
 const oscParameterDefinitions = {
-  freqExp: {
+  freqExp: <ParameterDefinition>{
     init: 0,
     min: -3,
     max: 2
   },
-  freqFine: {
+  freqFine: <ParameterDefinition>{
     init: 0,
     min: 0,
     max: 100
@@ -20,12 +33,12 @@ const oscParameterDefinitions = {
   // wave: 'sine',
   // pulseWidth: 0.5,
   // mix: 1,
-  mod: {
+  mod: <ParameterDefinition>{
     init: 0,
     min: 0,
     max: 1
   },
-  mix: {
+  mix: <ParameterDefinition>{
     init: 1,
     min: 0,
     max: 1
@@ -34,7 +47,7 @@ const oscParameterDefinitions = {
 
 const gui = new dat.GUI({name: 'hello'});
 
-const createOscFolder = name => {
+const createOscFolder : (name:string) => OscillatorParameters = name => {
   const oscFolder = gui.addFolder(name);
   const oscParameters = {};
 
@@ -43,12 +56,13 @@ const createOscFolder = name => {
     oscFolder.add(oscParameters, paramName, paramDef.min, paramDef.max)
   });
 
-  return oscParameters
+  // is this sketch?
+  return <OscillatorParameters> oscParameters
 };
 
-const osc1Parameters = createOscFolder('osc1');
-const osc2Parameters = createOscFolder('osc2');
-const osc3Parameters = createOscFolder('osc3');
+const osc1Parameters : OscillatorParameters = createOscFolder('osc1');
+const osc2Parameters : OscillatorParameters = createOscFolder('osc2');
+const osc3Parameters : OscillatorParameters = createOscFolder('osc3');
 
 
 const stats = new Stats();
