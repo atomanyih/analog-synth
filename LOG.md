@@ -64,3 +64,7 @@ seems like the frame jumps periodically. not sure why
 
 adding trails was surprisingly easy. only thing is that I'm doing additive color rn (`pixel = newValue + oldValue * trailsAmount`).  
 [] experiment with other blend modes?
+
+for example: dissolve mode
+
+changing the source of the trails (1, 2, 3 frames prev) adds interesting effects

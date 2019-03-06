@@ -96,7 +96,7 @@ const saveImageData = (imageData) => {
 };
 
 const getPast = (i) => {
-  let maybeImageData = prevImageDatas[1];
+  let maybeImageData = prevImageDatas[0];
   if (maybeImageData) {
     return maybeImageData.data[i]
   }
@@ -107,6 +107,12 @@ const getPast = (i) => {
 // create scaling thing
 //
 
+const blend = (a, b, amount) => {
+  // return a + b * amount - amount * 255 // plus darker
+  return a + b * amount // plus lighter
+  // return a - b * amount;
+  // return (Math.random() > amount) ? a : b
+};
 
 const cancel = startAnimationLoop((t) => {
   stats.begin();
@@ -153,9 +159,9 @@ const cancel = startAnimationLoop((t) => {
       osc2Val * osc3Parameters.mod,
       adjustedT
     );
-    data[i] = (osc1Val + 1) / 2 * 255 * osc1Parameters.mix + trailsAmount * getPast(i);
-    data[i + 1] = (osc2Val + 1) / 2 * 255 * osc2Parameters.mix + trailsAmount * getPast(i + 1);
-    data[i + 2] = (osc3Val + 1) / 2 * 255 * osc3Parameters.mix + trailsAmount * getPast(i + 2);
+    data[i] = blend((osc1Val + 1) / 2 * 255 * osc1Parameters.mix, getPast(i),  trailsAmount);
+    data[i + 1] = blend((osc2Val + 1) / 2 * 255 * osc2Parameters.mix, getPast(i+1),  trailsAmount);
+    data[i + 2] = blend((osc3Val + 1) / 2 * 255 * osc3Parameters.mix, getPast(i+2),  trailsAmount);
     data[i + 3] = 255
   }
 
