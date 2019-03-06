@@ -3,6 +3,7 @@ import Stats from 'stats-js';
 import {saw, sin, square, triangle} from "./Waves";
 
 import * as dat from 'dat.gui';
+import createSynth from "./Synth";
 
 const oscParameterDefinitions = {
   freqExp: {
@@ -24,17 +25,30 @@ const oscParameterDefinitions = {
     min: 0,
     max: 1
   },
+  mix: {
+    init: 1,
+    min: 0,
+    max: 1
+  }
 };
 
 const gui = new dat.GUI({name: 'hello'});
 
-const osc1Folder = gui.addFolder('osc1');
-const osc1Parameters = {};
+const createOscFolder = name => {
+  const oscFolder = gui.addFolder(name);
+  const oscParameters = {};
 
-Object.entries(oscParameterDefinitions).forEach(([paramName, paramDef]) => {
-  osc1Parameters[paramName] = paramDef.init;
-  osc1Folder.add(osc1Parameters, paramName, paramDef.min, paramDef.max)
-});
+  Object.entries(oscParameterDefinitions).forEach(([paramName, paramDef]) => {
+    oscParameters[paramName] = paramDef.init;
+    oscFolder.add(oscParameters, paramName, paramDef.min, paramDef.max)
+  });
+
+  return oscParameters
+};
+
+const osc1Parameters = createOscFolder('osc1');
+const osc2Parameters = createOscFolder('osc2');
+const osc3Parameters = createOscFolder('osc3');
 
 
 const stats = new Stats();
@@ -57,7 +71,7 @@ const saveImageData = (imageData) => {
 const getPast = (i) => {
   let maybeImageData = prevImageDatas[1];
   if(maybeImageData) {
-    return maybeImageData.data[i] / 255
+    return maybeImageData.data[i+2] / 255
   }
   return 0
 };
@@ -65,6 +79,8 @@ const getPast = (i) => {
 // eventually do transforms... but HOW? shader?
 // create scaling thing
 //
+
+
 
 const cancel = startAnimationLoop((t) => {
   stats.begin();
@@ -77,11 +93,11 @@ const cancel = startAnimationLoop((t) => {
 
   for (let i = 0; i < data.length; i += 4) {
     let osc1Val = triangle(1 / 499, getPast(i), i + t / 10);
-    // let osc2Val = square(1 / 200, osc1Val, i );
+    let osc2Val = square(1 / 199, osc1Val, i);
     let osc3Val = sin(1 / 501, getPast(i) * osc1Val, i);
-    data[i] = (osc1Val + 1) / 2 * 255;
-    // data[i + 1] = (osc2Val + 1) / 2 * 255;
-    data[i + 2] = (osc3Val + 1) / 2 * 255;
+    data[i] = (osc1Val + 1) / 2 * 255 * osc1Parameters.mix;
+    // data[i + 1] = (osc2Val + 1) / 2 * 255 * osc2Parameters.mix;
+    data[i + 2] = (osc3Val + 1) / 2 * 255 * osc3Parameters.mix;
     data[i + 3] = 255
   }
 
