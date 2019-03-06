@@ -2,6 +2,41 @@ import startAnimationLoop from "./startAnimationLoop";
 import Stats from 'stats-js';
 import {saw, sin, square, triangle} from "./Waves";
 
+import * as dat from 'dat.gui';
+
+const oscParameterDefinitions = {
+  freqExp: {
+    init: 0,
+    min: -1,
+    max: 5
+  },
+  freqFine: {
+    init: 0,
+    min: 0,
+    max: 5
+  },
+  // sync: 0,
+  // wave: 'sine',
+  // pulseWidth: 0.5,
+  // mix: 1,
+  mod: {
+    init: 0,
+    min: 0,
+    max: 1
+  },
+};
+
+const gui = new dat.GUI({name: 'hello'});
+
+const osc1Folder = gui.addFolder('osc1');
+const osc1Parameters = {};
+
+Object.entries(oscParameterDefinitions).forEach(([paramName, paramDef]) => {
+  osc1Parameters[paramName] = paramDef.init;
+  osc1Folder.add(osc1Parameters, paramName, paramDef.min, paramDef.max)
+});
+
+
 const stats = new Stats();
 stats.showPanel(0);
 document.body.appendChild(stats.dom);
@@ -11,7 +46,6 @@ const canvas = <HTMLCanvasElement>document.getElementById('canvas');
 const ctx: CanvasRenderingContext2D = canvas.getContext('2d');
 const canvasWidth = canvas.width;
 const canvasHeight = canvas.height;
-
 
 let prevImageDatas = [];
 
@@ -23,12 +57,14 @@ const saveImageData = (imageData) => {
 const getPast = (i) => {
   let maybeImageData = prevImageDatas[1];
   if(maybeImageData) {
-    return maybeImageData.data[i + 2] / 255
+    return maybeImageData.data[i] / 255
   }
   return 0
 };
 
 // eventually do transforms... but HOW? shader?
+// create scaling thing
+//
 
 const cancel = startAnimationLoop((t) => {
   stats.begin();
@@ -62,5 +98,7 @@ if (module.hot) {
     cancel();
     console.log('removing stats node');
     document.body.removeChild(stats.dom);
+    console.log('removing dat');
+    gui.destroy();
   })
 }
