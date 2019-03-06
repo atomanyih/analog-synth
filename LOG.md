@@ -43,4 +43,17 @@ the pixels should be drawn as though the frames are regular, I think
 
 simulation: oscillator rendering to screen with particular refresh rate. each frame of rendering is taking a snapshot of the screen at that time
  
-can convert `t` to "where would the scan line be"
+can convert `t` to "where would the scan line be", to find the pixel that would be being rendered. from there you can find the time each other pixel would have been rendered by subtracting
+
+final eq:
+```js
+const frameRate = 60;
+const timePerFrame = 1000/frameRate;
+const timePerPixel = timePerFrame/numPixels;
+
+const currentPixelAtT = Math.floor(t / timePerPixel) % numPixels;
+
+const adjustedT = t + (currentPixelBeingRendered - currentPixelAtT) * timePerPixel;
+```
+
+still not sure yet how to do sync for this. one way to think about it is removing the "time" component entirely, just rendering based on `index`
