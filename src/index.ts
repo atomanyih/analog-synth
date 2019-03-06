@@ -12,6 +12,24 @@ const ctx: CanvasRenderingContext2D = canvas.getContext('2d');
 const canvasWidth = canvas.width;
 const canvasHeight = canvas.height;
 
+
+let prevImageDatas = [];
+
+const saveImageData = (imageData) => {
+  prevImageDatas.unshift(imageData);
+  prevImageDatas.slice(0, 5);
+};
+
+const getPast = (i) => {
+  let maybeImageData = prevImageDatas[1];
+  if(maybeImageData) {
+    return maybeImageData.data[i + 2] / 255
+  }
+  return 0
+};
+
+// eventually do transforms... but HOW? shader?
+
 const cancel = startAnimationLoop((t) => {
   stats.begin();
 
@@ -22,14 +40,16 @@ const cancel = startAnimationLoop((t) => {
   const data = imageData.data;
 
   for (let i = 0; i < data.length; i += 4) {
-    let osc1Val = triangle(1 / 503, 0, i + t);
-    let osc2Val = square(1 / 200, osc1Val, i + t);
-    let osc3Val = square(1 / 501, osc2Val * 0.5, i);
-    // data[i] = (osc1Val + 1) / 2 * 255;
+    let osc1Val = triangle(1 / 499, getPast(i), i + t / 10);
+    // let osc2Val = square(1 / 200, osc1Val, i );
+    let osc3Val = sin(1 / 501, getPast(i) * osc1Val, i);
+    data[i] = (osc1Val + 1) / 2 * 255;
     // data[i + 1] = (osc2Val + 1) / 2 * 255;
     data[i + 2] = (osc3Val + 1) / 2 * 255;
     data[i + 3] = 255
   }
+
+  saveImageData(imageData);
 
   ctx.putImageData(imageData, 0, 0);
 
