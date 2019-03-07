@@ -1,23 +1,29 @@
 import startAnimationLoop from "./startAnimationLoop";
 import Stats from 'stats-js';
-import {saw, sin, square, triangle} from "./Waves";
+import * as waves from "./Waves";
 
 import * as dat from 'dat.gui';
 import {freqFromParams} from "./freqFromParams";
 
-type ParameterDefinition = NumberParameterDefinition
+type ParameterDefinition = NumberParameterDefinition | SelectParameterDefinition
 
-interface NumberParameterDefinition {
+type NumberParameterDefinition = {
   init: number,
   min: number,
   max: number
 }
 
-interface OscillatorParameters {
+type SelectParameterDefinition = {
+  init: string,
+  options: string[]
+}
+
+type OscillatorParameters = {
   freqExp: number,
   freqFine: number,
   mod: number,
   mix: number,
+  waveName: string
   // sync: number
 }
 
@@ -49,6 +55,10 @@ const oscParameterDefinitions : {[paramName : string] : ParameterDefinition} = {
     init: 1,
     min: 0,
     max: 1
+  },
+  waveName: {
+    init: 'triangle',
+    options: ['sin', 'square', 'saw', 'triangle']
   }
 };
 
@@ -66,7 +76,11 @@ const createOscFolder : (name:string) => OscillatorParameters = name => {
 
   Object.entries(oscParameterDefinitions).forEach(([paramName, paramDef]) => {
     oscParameters[paramName] = paramDef.init;
-    oscFolder.add(oscParameters, paramName, paramDef.min, paramDef.max)
+    if(paramDef.options) { // type this better
+      oscFolder.add(oscParameters, paramName, paramDef.options)
+    } else {
+      oscFolder.add(oscParameters, paramName, paramDef.min, paramDef.max)
+    }
   });
 
   // is this sketch?
@@ -154,6 +168,10 @@ const cancel = startAnimationLoop((t) => {
 
   const currentPixel = Math.floor(t / timePerPixel) % data.length;
 
+  const osc1Wave = waves[osc1Parameters.waveName];
+  const osc2Wave = waves[osc2Parameters.waveName];
+  const osc3Wave = waves[osc3Parameters.waveName];
+
   for (let i = 0; i < data.length; i += 4) {
     // if(i / 4 == currentPixel) {
     //   data[i] = 255;
@@ -163,18 +181,18 @@ const cancel = startAnimationLoop((t) => {
     // }
     const adjustedT = t + (i - currentPixel) * timePerPixel;
 
-    const osc1Val = sin(
+    const osc1Val = osc1Wave(
       osc1Freq,
       getPast(i + 2) / 255 * osc1Parameters.mod,
       adjustedT
     );
-    const osc2Val = square(
+    const osc2Val = osc2Wave(
       osc2Freq,
       osc1Val * osc2Parameters.mod,
       adjustedT
     );
 
-    const osc3Val = triangle(
+    const osc3Val = osc3Wave(
       osc3Freq,
       osc2Val * osc3Parameters.mod,
       adjustedT
