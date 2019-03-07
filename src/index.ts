@@ -4,63 +4,8 @@ import * as waves from "./Waves";
 
 import * as dat from 'dat.gui';
 import {freqFromParams} from "./freqFromParams";
-
-type ParameterDefinition = NumberParameterDefinition | SelectParameterDefinition
-
-type NumberParameterDefinition = {
-  init: number,
-  min: number,
-  max: number
-}
-
-type SelectParameterDefinition = {
-  init: string,
-  options: string[]
-}
-
-type OscillatorParameters = {
-  freqExp: number,
-  freqFine: number,
-  mod: number,
-  mix: number,
-  waveName: string
-  // sync: number
-}
-
-const oscParameterDefinitions : {[paramName : string] : ParameterDefinition} = {
-  freqExp: {
-    init: -1.8,
-    min: -3,
-    max: 4
-  },
-  freqFine: {
-    init: 0,
-    min: 0,
-    max: 100
-  },
-  // sync: {
-  //   init: 0,
-  //   min: 0,
-  //   max: 1
-  // },
-  // wave: 'sine',
-  // pulseWidth: 0.5,
-  // mix: 1,
-  mod: {
-    init: 0,
-    min: 0,
-    max: 1
-  },
-  mix: {
-    init: 1,
-    min: 0,
-    max: 1
-  },
-  waveName: {
-    init: 'triangle',
-    options: ['sin', 'square', 'saw', 'triangle']
-  }
-};
+import {OscillatorParameters, oscParameterDefinitions} from "./Parameters";
+import {getPast, saveImageData} from "./ThePast";
 
 const trailsParameters = {
   trailsAmount: 0
@@ -72,7 +17,12 @@ gui.add(trailsParameters, 'trailsAmount', 0, 1);
 
 const createOscFolder : (name:string) => OscillatorParameters = name => {
   const oscFolder = gui.addFolder(name);
-  const oscParameters = {};
+  const oscParameters = Object.entries(oscParameterDefinitions).reduce((acc, [paramName, paramDef]) => {
+    return {
+      ...acc,
+      [paramName]: paramDef.init
+    };
+  }, {});
 
   Object.entries(oscParameterDefinitions).forEach(([paramName, paramDef]) => {
     oscParameters[paramName] = paramDef.init;
@@ -101,21 +51,6 @@ const canvas = <HTMLCanvasElement>document.getElementById('canvas');
 const ctx: CanvasRenderingContext2D = canvas.getContext('2d');
 const canvasWidth = canvas.width;
 const canvasHeight = canvas.height;
-
-let prevImageDatas = [];
-
-const saveImageData = (imageData) => {
-  prevImageDatas.unshift(imageData);
-  prevImageDatas = prevImageDatas.slice(0, 5);
-};
-
-const getPast = (i) => {
-  let maybeImageData = prevImageDatas[0];
-  if (maybeImageData) {
-    return maybeImageData.data[i]
-  }
-  return 0
-};
 
 // eventually do transforms... but HOW? shader?
 // create scaling thing
