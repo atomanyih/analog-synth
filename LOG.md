@@ -72,3 +72,8 @@ for example: dissolve mode
 changing the source of the trails (1, 2, 3 frames prev) adds interesting effects
 
 it's interesting that Math.random slows things down noticeably. I wonder if there's a way around this
+
+#### optimization
+added sine approximation that is faster. looks like it spends more time above zero tho
+
+optimization seems to be a bit of a crap shoot. sometimes it stays above 50fps all the time, other times it just hangs out lower even if I haven't changed anything

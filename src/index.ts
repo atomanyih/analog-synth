@@ -18,7 +18,7 @@ interface OscillatorParameters {
   freqFine: number,
   mod: number,
   mix: number,
-  sync: number
+  // sync: number
 }
 
 const oscParameterDefinitions : {[paramName : string] : ParameterDefinition} = {
@@ -32,11 +32,11 @@ const oscParameterDefinitions : {[paramName : string] : ParameterDefinition} = {
     min: 0,
     max: 100
   },
-  sync: {
-    init: 0,
-    min: 0,
-    max: 1
-  },
+  // sync: {
+  //   init: 0,
+  //   min: 0,
+  //   max: 1
+  // },
   // wave: 'sine',
   // pulseWidth: 0.5,
   // mix: 1,
@@ -163,7 +163,7 @@ const cancel = startAnimationLoop((t) => {
     // }
     const adjustedT = t + (i - currentPixel) * timePerPixel;
 
-    const osc1Val = saw(
+    const osc1Val = sin(
       osc1Freq,
       getPast(i + 2) / 255 * osc1Parameters.mod,
       adjustedT
