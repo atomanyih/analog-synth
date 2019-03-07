@@ -23,7 +23,7 @@ interface OscillatorParameters {
 
 const oscParameterDefinitions : {[paramName : string] : ParameterDefinition} = {
   freqExp: {
-    init: -0.19,
+    init: -1.8,
     min: -3,
     max: 4
   },
@@ -114,6 +114,26 @@ const blend = (a, b, amount) => {
   // return (Math.random() > amount) ? a : b
 };
 
+const blendPixel = ([r0,g0,b0], [r1,g1,b1], amount) => {
+  // return [
+  //   r0 + r1 * amount,
+  //   g0 + g1 * amount,
+  //   b0 + b1 * amount,
+  // ]
+  return [
+    r0 + r1 * amount,
+    g0 + g1 * amount,
+    b0 + b1 * amount,
+  ]
+};
+
+// const blendPixel = (a, b, amount) => {
+//   if (amount == 0) {
+//     return a
+//   }
+//   return Math.random() > amount ? a : b
+// };
+
 const cancel = startAnimationLoop((t) => {
   stats.begin();
 
@@ -159,9 +179,16 @@ const cancel = startAnimationLoop((t) => {
       osc2Val * osc3Parameters.mod,
       adjustedT
     );
-    data[i] = blend((osc1Val + 1) / 2 * 255 * osc1Parameters.mix, getPast(i),  trailsAmount);
-    data[i + 1] = blend((osc2Val + 1) / 2 * 255 * osc2Parameters.mix, getPast(i+1),  trailsAmount);
-    data[i + 2] = blend((osc3Val + 1) / 2 * 255 * osc3Parameters.mix, getPast(i+2),  trailsAmount);
+
+    const pixel = blendPixel(
+      [(osc1Val + 1) / 2 * 255 * osc1Parameters.mix, (osc2Val + 1) / 2 * 255 * osc2Parameters.mix, (osc3Val + 1) / 2 * 255 * osc3Parameters.mix],
+      [getPast(i), getPast(i+1), getPast(i+2)],
+      trailsAmount
+    );
+
+    data[i] = pixel[0];
+    data[i + 1] = pixel[1];
+    data[i + 2] = pixel[2];
     data[i + 3] = 255
   }
 

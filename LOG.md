@@ -56,6 +56,8 @@ const currentPixelAtT = Math.floor(t / timePerPixel) % numPixels;
 const adjustedT = t + (currentPixelBeingRendered - currentPixelAtT) * timePerPixel;
 ```
 
+it's weird when the frame rate is lower than the render frame rate
+
 still not sure yet how to do sync for this. one way to think about it is removing the "time" component entirely, just rendering based on `index`
 
 seems like the frame jumps periodically. not sure why
@@ -68,3 +70,5 @@ adding trails was surprisingly easy. only thing is that I'm doing additive color
 for example: dissolve mode
 
 changing the source of the trails (1, 2, 3 frames prev) adds interesting effects
+
+it's interesting that Math.random slows things down noticeably. I wonder if there's a way around this
