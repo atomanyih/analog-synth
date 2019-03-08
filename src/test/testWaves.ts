@@ -1,13 +1,22 @@
-import {getCanvas} from "../getCanvas";
 import {saw, sin, triangle, square, Wave} from "../Waves";
 
-function renderGraph(wave: Wave, canvasId: string) {
+const nodesToRemove = [];
 
-  const {
-    ctx,
-    width: canvasWidth,
-    height: canvasHeight
-  } = getCanvas(canvasId);
+function renderGraph(wave: Wave, name: string) {
+  const canvas = document.createElement('canvas');
+  const canvasWidth = 500;
+  const canvasHeight = 100;
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
+  const ctx = canvas.getContext('2d');
+
+  const div = document.createElement('div');
+  div.appendChild(canvas);
+  div.appendChild(document.createTextNode(name));
+
+  document.body.appendChild(div);
+
+  nodesToRemove.push(div);
 
   ctx.save();
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -44,3 +53,9 @@ renderGraph(saw, 'saw');
 renderGraph(triangle, 'triangle');
 renderGraph(square, 'square');
 
+if (module.hot) {
+  module.hot.dispose(function () {
+    console.log('cleaning up');
+    nodesToRemove.forEach(node => document.body.removeChild(node));
+  })
+}
