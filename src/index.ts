@@ -6,6 +6,7 @@ import * as dat from 'dat.gui';
 import {freqFromParams} from "./freqFromParams";
 import {OscillatorParameters, oscParameterDefinitions} from "./Parameters";
 import {getPast, saveImageData} from "./ThePast";
+import {getCanvas} from "./getCanvas";
 
 const trailsParameters = {
   trailsAmount: 0
@@ -47,10 +48,11 @@ stats.showPanel(0);
 document.body.appendChild(stats.dom);
 
 
-const canvas = <HTMLCanvasElement>document.getElementById('canvas');
-const ctx: CanvasRenderingContext2D = canvas.getContext('2d');
-const canvasWidth = canvas.width;
-const canvasHeight = canvas.height;
+const {
+  ctx,
+  width: canvasWidth,
+  height: canvasHeight
+} = getCanvas('canvas');
 
 // eventually do transforms... but HOW? shader?
 // create scaling thing
@@ -83,31 +85,46 @@ const blendPixel = ([r0,g0,b0], [r1,g1,b1], amount) => {
 //   return Math.random() > amount ? a : b
 // };
 
-const cancel = startAnimationLoop((t) => {
-  stats.begin();
+function synth(osc1Wave, osc1Freq, pastPixel: [number, number, number], t, osc2Wave, osc2Freq, osc3Wave, osc3Freq, trailsAmount: number) {
+  const osc1Val = osc1Wave(
+    osc1Freq,
+    pastPixel[2] / 255 * osc1Parameters.mod,
+    t
+  );
+  const osc2Val = osc2Wave(
+    osc2Freq,
+    osc1Val * osc2Parameters.mod,
+    t
+  );
 
+  const osc3Val = osc3Wave(
+    osc3Freq,
+    osc2Val * osc3Parameters.mod,
+    t
+  );
+
+  return blendPixel(
+    [(osc1Val + 1) / 2 * 255 * osc1Parameters.mix, (osc2Val + 1) / 2 * 255 * osc2Parameters.mix, (osc3Val + 1) / 2 * 255 * osc3Parameters.mix],
+    pastPixel,
+    trailsAmount
+  );
+}
+
+function render(t, osc1Wave, osc1Freq, osc2Wave, osc2Freq, osc3Wave, osc3Freq, trailsAmount: number) {
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
   const imageData = ctx.createImageData(canvasWidth, canvasHeight);
 
   const data = imageData.data;
 
-  const {trailsAmount} = trailsParameters;
-
-  const osc1Freq = freqFromParams(osc1Parameters.freqExp, osc1Parameters.freqFine);
-  const osc2Freq = freqFromParams(osc2Parameters.freqExp, osc2Parameters.freqFine);
-  const osc3Freq = freqFromParams(osc3Parameters.freqExp, osc3Parameters.freqFine);
-
-  const timePerFrame = 1000/60;
-  const timePerPixel = timePerFrame/data.length;
+  const timePerFrame = 1000 / 60;
+  const timePerPixel = timePerFrame / data.length;
 
   const currentPixel = Math.floor(t / timePerPixel) % data.length;
 
-  const osc1Wave = waves[osc1Parameters.waveName];
-  const osc2Wave = waves[osc2Parameters.waveName];
-  const osc3Wave = waves[osc3Parameters.waveName];
-
   for (let i = 0; i < data.length; i += 4) {
+    const pastPixel : [number, number, number] = [getPast(i), getPast(i + 1), getPast(i + 2)];
+
     // if(i / 4 == currentPixel) {
     //   data[i] = 255;
     //   data[i + 1] =255;
@@ -116,28 +133,7 @@ const cancel = startAnimationLoop((t) => {
     // }
     const adjustedT = t + (i - currentPixel) * timePerPixel;
 
-    const osc1Val = osc1Wave(
-      osc1Freq,
-      getPast(i + 2) / 255 * osc1Parameters.mod,
-      adjustedT
-    );
-    const osc2Val = osc2Wave(
-      osc2Freq,
-      osc1Val * osc2Parameters.mod,
-      adjustedT
-    );
-
-    const osc3Val = osc3Wave(
-      osc3Freq,
-      osc2Val * osc3Parameters.mod,
-      adjustedT
-    );
-
-    const pixel = blendPixel(
-      [(osc1Val + 1) / 2 * 255 * osc1Parameters.mix, (osc2Val + 1) / 2 * 255 * osc2Parameters.mix, (osc3Val + 1) / 2 * 255 * osc3Parameters.mix],
-      [getPast(i), getPast(i+1), getPast(i+2)],
-      trailsAmount
-    );
+    const pixel = synth(osc1Wave, osc1Freq, pastPixel, adjustedT, osc2Wave, osc2Freq, osc3Wave, osc3Freq, trailsAmount);
 
     data[i] = pixel[0];
     data[i + 1] = pixel[1];
@@ -148,6 +144,22 @@ const cancel = startAnimationLoop((t) => {
   saveImageData(imageData);
 
   ctx.putImageData(imageData, 0, 0);
+}
+
+const cancel = startAnimationLoop((t) => {
+  stats.begin();
+
+  const {trailsAmount} = trailsParameters;
+
+  const osc1Freq = freqFromParams(osc1Parameters.freqExp, osc1Parameters.freqFine);
+  const osc2Freq = freqFromParams(osc2Parameters.freqExp, osc2Parameters.freqFine);
+  const osc3Freq = freqFromParams(osc3Parameters.freqExp, osc3Parameters.freqFine);
+
+  const osc1Wave = waves[osc1Parameters.waveName];
+  const osc2Wave = waves[osc2Parameters.waveName];
+  const osc3Wave = waves[osc3Parameters.waveName];
+
+  render(t, osc1Wave, osc1Freq, osc2Wave, osc2Freq, osc3Wave, osc3Freq, trailsAmount);
 
   stats.end();
 });

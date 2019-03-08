@@ -78,5 +78,12 @@ added sine approximation that is faster. looks like it spends more time above ze
 
 optimization seems to be a bit of a crap shoot. sometimes it stays above 50fps all the time, other times it just hangs out lower even if I haven't changed anything
 
+something to check out: retrieving waveform on each render is ? -- seemed to lose a few fps there
+
 #### types
 I miss elm types with switch statements
+
+#### lfo phase modulation
+some sort of stateful model is needed which is annoying
+
+oh wait all my frequencies are in 1/ms damn

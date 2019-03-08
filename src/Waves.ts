@@ -4,7 +4,7 @@ export interface Wave {
 
 // https://github.com/netcell/FTrig
 const sinLow = x => {
-  x = x%3.14159265;
+  x = x%(2*3.14159265) - 3.14159265;
   if (x < -3.14159265) x += 6.28318531;
   else if (x >  3.14159265) x -= 6.28318531;
   if (x < 0) return 1.27323954 * x + .405284735 * x * x;
@@ -30,4 +30,4 @@ const triangle : Wave = (f, phi, t) => {
   return 2 * Math.abs(saw(f, phi, t)) - 1
 };
 
-export {saw, square, sin, triangle}
+export {saw, square, sin, triangle, pulse}
