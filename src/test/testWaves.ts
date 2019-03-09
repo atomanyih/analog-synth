@@ -53,6 +53,23 @@ renderGraph(saw, 'saw');
 renderGraph(triangle, 'triangle');
 renderGraph(square, 'square');
 
+renderGraph((f, phi, t) => {
+  const tc = 170;
+  const f1 = f * 2;
+  const phi1 = f * tc + phi - f1 * tc;
+  const wave = sin;
+  return t < tc ? wave(f, phi, t) : wave(f1, phi1, t)
+}, 'intersect sin');
+
+renderGraph((f, phi, t) => {
+  const tc = 170;
+  const f1 = f * 2;
+  const phi1 = 2* f * tc + phi - 2 * f1 * tc;
+  const wave = saw;
+  return t < tc ? wave(f, phi, t) : wave(f1, phi1, t)
+}, 'intersect saw');
+
+
 if (module.hot) {
   module.hot.dispose(function () {
     console.log('cleaning up');

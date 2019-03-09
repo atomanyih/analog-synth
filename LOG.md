@@ -84,6 +84,19 @@ something to check out: retrieving waveform on each render is ? -- seemed to los
 I miss elm types with switch statements
 
 #### lfo phase modulation
-some sort of stateful model is needed which is annoying
+ok so I figured out: I think the periodic function on each side cancels out?.  
+or at least we're not trying to solve for EVERY possible, just one so we can assume it's in the same cycle?.  
+like `x % 3 === y % 3`, could be `x = 1; y = 1` or `x = 1; y = 4` but for our purposes they're equivalent so we can simplify by saying `x = y`.    
+or maybe, more realistically `x = y + N*3`
 
-oh wait all my frequencies are in 1/ms damn
+`a = y % n` can be rewritten as congruence relation `a = k*n + y`.  
+thus `x % n = y % n` can be rewritten as `k*n + y = j*n + x`. for the case where `j = k`, `y = x`
+
+
+for sin: `2 * Math.PI * f * t  + 2 * Math.PI * phi`
+for saw: `Math.abs(t * 2 * f + phi) % 2 - 1` so `t * 2 * f + phi`
+
+I guess you grab the inner part of the periodic function.
+in saw's case the periodic function is `%`
+in sin, `sin`
+the other waves are based on `saw` so we good
