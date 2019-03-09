@@ -87,7 +87,7 @@ function synth(osc1, osc2, osc3, pastPixel: [number, number, number], t, trailsA
   );
 }
 
-function render(t, osc1Wave, osc1Freq, osc2Wave, osc2Freq, osc3Wave, osc3Freq, trailsAmount: number) {
+function render(osc1, osc2, osc3, t, trailsAmount: number) {
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
   const imageData = ctx.createImageData(canvasWidth, canvasHeight);
@@ -98,9 +98,6 @@ function render(t, osc1Wave, osc1Freq, osc2Wave, osc2Freq, osc3Wave, osc3Freq, t
   const timePerPixel = timePerFrame / data.length;
 
   const currentPixel = Math.floor(t / timePerPixel) % data.length;
-  const osc1 = oscillator(osc1Wave, osc1Freq);
-  const osc2 = oscillator(osc2Wave, osc2Freq);
-  const osc3 = oscillator(osc3Wave, osc3Freq);
 
   for (let i = 0; i < data.length; i += 4) {
     const pastPixel: [number, number, number] = [getPast(i), getPast(i + 1), getPast(i + 2)];
@@ -146,7 +143,11 @@ const cancel = startAnimationLoop((t) => {
   const osc2Wave = waves[osc2Parameters.waveName];
   const osc3Wave = waves[osc3Parameters.waveName];
 
-  render(t, osc1Wave, osc1Freq, osc2Wave, osc2Freq, osc3Wave, osc3Freq, trailsAmount);
+  const osc1 = oscillator(osc1Wave, osc1Freq);
+  const osc2 = oscillator(osc2Wave, osc2Freq);
+  const osc3 = oscillator(osc3Wave, osc3Freq);
+
+  render(osc1, osc2, osc3, t, trailsAmount);
 
   stats.end();
 });
