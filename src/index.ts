@@ -16,7 +16,7 @@ const gui = new dat.GUI({name: 'hello'});
 
 gui.add(trailsParameters, 'trailsAmount', 0, 1);
 
-const createOscFolder : (name:string) => OscillatorParameters = name => {
+const createOscFolder: (name: string) => OscillatorParameters = name => {
   const oscFolder = gui.addFolder(name);
   const oscParameters = Object.entries(oscParameterDefinitions).reduce((acc, [paramName, paramDef]) => {
     return {
@@ -27,7 +27,7 @@ const createOscFolder : (name:string) => OscillatorParameters = name => {
 
   Object.entries(oscParameterDefinitions).forEach(([paramName, paramDef]) => {
     oscParameters[paramName] = paramDef.init;
-    if(paramDef.options) { // type this better
+    if (paramDef.options) { // type this better
       oscFolder.add(oscParameters, paramName, paramDef.options)
     } else {
       oscFolder.add(oscParameters, paramName, paramDef.min, paramDef.max)
@@ -35,12 +35,12 @@ const createOscFolder : (name:string) => OscillatorParameters = name => {
   });
 
   // is this sketch?
-  return <OscillatorParameters> oscParameters
+  return <OscillatorParameters>oscParameters
 };
 
-const osc1Parameters : OscillatorParameters = createOscFolder('osc1');
-const osc2Parameters : OscillatorParameters = createOscFolder('osc2');
-const osc3Parameters : OscillatorParameters = createOscFolder('osc3');
+const osc1Parameters: OscillatorParameters = createOscFolder('osc1');
+const osc2Parameters: OscillatorParameters = createOscFolder('osc2');
+const osc3Parameters: OscillatorParameters = createOscFolder('osc3');
 
 
 const stats = new Stats();
@@ -65,7 +65,7 @@ const blend = (a, b, amount) => {
   // return (Math.random() > amount) ? a : b
 };
 
-const blendPixel = ([r0,g0,b0], [r1,g1,b1], amount) => {
+const blendPixel = ([r0, g0, b0], [r1, g1, b1], amount) => {
   // return [
   //   r0 + r1 * amount,
   //   g0 + g1 * amount,
@@ -85,20 +85,19 @@ const blendPixel = ([r0,g0,b0], [r1,g1,b1], amount) => {
 //   return Math.random() > amount ? a : b
 // };
 
-function synth(osc1Wave, osc1Freq, pastPixel: [number, number, number], t, osc2Wave, osc2Freq, osc3Wave, osc3Freq, trailsAmount: number) {
-  const osc1Val = osc1Wave(
-    osc1Freq,
+const oscillator = (wave, freq) => (mod, t) => wave(freq, mod, t);
+
+function synth(osc1, osc2, osc3, pastPixel: [number, number, number], t, trailsAmount: number) {
+  const osc1Val = osc1(
     pastPixel[2] / 255 * osc1Parameters.mod,
     t
   );
-  const osc2Val = osc2Wave(
-    osc2Freq,
+  const osc2Val = osc2(
     osc1Val * osc2Parameters.mod,
     t
   );
 
-  const osc3Val = osc3Wave(
-    osc3Freq,
+  const osc3Val = osc3(
     osc2Val * osc3Parameters.mod,
     t
   );
@@ -121,9 +120,12 @@ function render(t, osc1Wave, osc1Freq, osc2Wave, osc2Freq, osc3Wave, osc3Freq, t
   const timePerPixel = timePerFrame / data.length;
 
   const currentPixel = Math.floor(t / timePerPixel) % data.length;
+  const osc1 = oscillator(osc1Wave, osc1Freq);
+  const osc2 = oscillator(osc2Wave, osc2Freq);
+  const osc3 = oscillator(osc3Wave, osc3Freq);
 
   for (let i = 0; i < data.length; i += 4) {
-    const pastPixel : [number, number, number] = [getPast(i), getPast(i + 1), getPast(i + 2)];
+    const pastPixel: [number, number, number] = [getPast(i), getPast(i + 1), getPast(i + 2)];
 
     // if(i / 4 == currentPixel) {
     //   data[i] = 255;
@@ -133,7 +135,14 @@ function render(t, osc1Wave, osc1Freq, osc2Wave, osc2Freq, osc3Wave, osc3Freq, t
     // }
     const adjustedT = t + (i - currentPixel) * timePerPixel;
 
-    const pixel = synth(osc1Wave, osc1Freq, pastPixel, adjustedT, osc2Wave, osc2Freq, osc3Wave, osc3Freq, trailsAmount);
+    const pixel = synth(
+      osc1,
+      osc2,
+      osc3,
+      pastPixel,
+      adjustedT,
+      trailsAmount
+    );
 
     data[i] = pixel[0];
     data[i + 1] = pixel[1];
