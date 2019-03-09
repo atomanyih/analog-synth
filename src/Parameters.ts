@@ -1,16 +1,3 @@
-export type ParameterDefinition = NumberParameterDefinition | SelectParameterDefinition
-
-export type NumberParameterDefinition = {
-  init: number,
-  min: number,
-  max: number
-}
-
-export type SelectParameterDefinition = {
-  init: string,
-  options: string[]
-}
-
 export type OscillatorParameters = {
   freqExp: number,
   freqFine: number,
@@ -20,37 +7,21 @@ export type OscillatorParameters = {
   // sync: number
 }
 
-export const oscParameterDefinitions : {[paramName : string] : ParameterDefinition} = {
-  freqExp: {
-    init: -1.8,
-    min: -3,
-    max: 4
-  },
-  freqFine: {
-    init: 0,
-    min: 0,
-    max: 100
-  },
-  // sync: {
-  //   init: 0,
-  //   min: 0,
-  //   max: 1
-  // },
-  // wave: 'sine',
-  // pulseWidth: 0.5,
-  // mix: 1,
-  mod: {
-    init: 0,
-    min: 0,
-    max: 1
-  },
-  mix: {
-    init: 1,
-    min: 0,
-    max: 1
-  },
-  waveName: {
-    init: 'triangle',
-    options: ['sin', 'square', 'saw', 'triangle']
-  }
+export const createOscFolder: (gui, name: string) => OscillatorParameters = (gui, name) => {
+  const oscFolder = gui.addFolder(name);
+  const oscParameters = {
+    freqExp: -1.8,
+    freqFine: 0,
+    mod: 0,
+    mix:  1,
+    waveName: 'triangle',
+  };
+
+  oscFolder.add(oscParameters, 'freqExp', -3, 4);
+  oscFolder.add(oscParameters, 'freqFine', 0, 100, 0.1);
+  oscFolder.add(oscParameters, 'mod', 0, 1);
+  oscFolder.add(oscParameters, 'mix', 0, 1);
+  oscFolder.add(oscParameters, 'waveName', ['sin', 'square', 'saw', 'triangle']);
+
+  return <OscillatorParameters>oscParameters
 };

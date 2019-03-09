@@ -4,7 +4,7 @@ import * as waves from "./Waves";
 
 import * as dat from 'dat.gui';
 import {freqFromParams} from "./freqFromParams";
-import {OscillatorParameters, oscParameterDefinitions} from "./Parameters";
+import {createOscFolder, OscillatorParameters} from "./Parameters";
 import {getPast, saveImageData} from "./ThePast";
 import {getCanvas} from "./getCanvas";
 
@@ -16,31 +16,9 @@ const gui = new dat.GUI({name: 'hello'});
 
 gui.add(trailsParameters, 'trailsAmount', 0, 1);
 
-const createOscFolder: (name: string) => OscillatorParameters = name => {
-  const oscFolder = gui.addFolder(name);
-  const oscParameters = Object.entries(oscParameterDefinitions).reduce((acc, [paramName, paramDef]) => {
-    return {
-      ...acc,
-      [paramName]: paramDef.init
-    };
-  }, {});
-
-  Object.entries(oscParameterDefinitions).forEach(([paramName, paramDef]) => {
-    oscParameters[paramName] = paramDef.init;
-    if (paramDef.options) { // type this better
-      oscFolder.add(oscParameters, paramName, paramDef.options)
-    } else {
-      oscFolder.add(oscParameters, paramName, paramDef.min, paramDef.max)
-    }
-  });
-
-  // is this sketch?
-  return <OscillatorParameters>oscParameters
-};
-
-const osc1Parameters: OscillatorParameters = createOscFolder('osc1');
-const osc2Parameters: OscillatorParameters = createOscFolder('osc2');
-const osc3Parameters: OscillatorParameters = createOscFolder('osc3');
+const osc1Parameters: OscillatorParameters = createOscFolder(gui,'osc1');
+const osc2Parameters: OscillatorParameters = createOscFolder(gui, 'osc2');
+const osc3Parameters: OscillatorParameters = createOscFolder(gui, 'osc3');
 
 
 const stats = new Stats();
