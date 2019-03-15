@@ -4,7 +4,7 @@ import * as waves from "./Waves";
 
 import * as dat from 'dat.gui';
 import {freqFromParams} from "./freqFromParams";
-import {createOscFolder, OscillatorParameters} from "./Parameters";
+import {createOscFolder, state} from "./Parameters";
 import {getPast, saveImageData} from "./ThePast";
 import {getCanvas} from "./getCanvas";
 
@@ -16,10 +16,13 @@ const gui = new dat.GUI({name: 'hello'});
 
 gui.add(otherParameters, 'trailsAmount', 0, 1);
 
-const osc1Parameters: OscillatorParameters = createOscFolder(gui, 'osc1');
-const osc2Parameters: OscillatorParameters = createOscFolder(gui, 'osc2');
-const osc3Parameters: OscillatorParameters = createOscFolder(gui, 'osc3');
+const {
+  osc1Parameters, osc2Parameters, osc3Parameters,
+} = state;
 
+createOscFolder(gui, osc1Parameters, 'osc1');
+createOscFolder(gui, osc2Parameters, 'osc2');
+createOscFolder(gui, osc3Parameters, 'osc3');
 
 const stats = new Stats();
 stats.showPanel(0);
@@ -85,7 +88,7 @@ const synth = (osc1, osc2, osc3, osc1Mod, t) => {
     (osc2Val + 1) / 2 * 255 * osc2Parameters.mix,
     (osc3Val + 1) / 2 * 255 * osc3Parameters.mix
   ];
-}
+};
 
 const dissolveTrails = dissolvePixel;
 
