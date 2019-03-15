@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "start": "parcel src/test/waves.html src/index.html"
+    "start": "parcel src/test/*.html src/index.html"
   },
   "author": "",
   "license": "ISC",

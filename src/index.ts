@@ -8,15 +8,15 @@ import {createOscFolder, OscillatorParameters} from "./Parameters";
 import {getPast, saveImageData} from "./ThePast";
 import {getCanvas} from "./getCanvas";
 
-const trailsParameters = {
-  trailsAmount: 0
+const otherParameters = {
+  trailsAmount: 0,
 };
 
 const gui = new dat.GUI({name: 'hello'});
 
-gui.add(trailsParameters, 'trailsAmount', 0, 1);
+gui.add(otherParameters, 'trailsAmount', 0, 1);
 
-const osc1Parameters: OscillatorParameters = createOscFolder(gui,'osc1');
+const osc1Parameters: OscillatorParameters = createOscFolder(gui, 'osc1');
 const osc2Parameters: OscillatorParameters = createOscFolder(gui, 'osc2');
 const osc3Parameters: OscillatorParameters = createOscFolder(gui, 'osc3');
 
@@ -56,18 +56,18 @@ const blendPixel = ([r0, g0, b0], [r1, g1, b1], amount) => {
   ]
 };
 
-// const blendPixel = (a, b, amount) => {
-//   if (amount == 0) {
-//     return a
-//   }
-//   return Math.random() > amount ? a : b
-// };
+const dissolvePixel = (a, b, amount) => {
+  if (amount == 0) {
+    return a
+  }
+  return Math.random() > amount ? a : b
+};
 
 const oscillator = (wave, freq) => (mod, t) => wave(freq, mod, t);
 
-function synth(osc1, osc2, osc3, pastPixel: [number, number, number], t, trailsAmount: number) {
+const synth = (osc1, osc2, osc3, osc1Mod, t) => {
   const osc1Val = osc1(
-    pastPixel[2] / 255 * osc1Parameters.mod,
+    osc1Mod * osc1Parameters.mod,
     t
   );
   const osc2Val = osc2(
@@ -80,12 +80,16 @@ function synth(osc1, osc2, osc3, pastPixel: [number, number, number], t, trailsA
     t
   );
 
-  return blendPixel(
-    [(osc1Val + 1) / 2 * 255 * osc1Parameters.mix, (osc2Val + 1) / 2 * 255 * osc2Parameters.mix, (osc3Val + 1) / 2 * 255 * osc3Parameters.mix],
-    pastPixel,
-    trailsAmount
-  );
+  return <[number, number, number]>[
+    (osc1Val + 1) / 2 * 255 * osc1Parameters.mix,
+    (osc2Val + 1) / 2 * 255 * osc2Parameters.mix,
+    (osc3Val + 1) / 2 * 255 * osc3Parameters.mix
+  ];
 }
+
+const dissolveTrails = dissolvePixel;
+
+const trails = blendPixel;
 
 function render(osc1, osc2, osc3, t, trailsAmount: number) {
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -94,10 +98,13 @@ function render(osc1, osc2, osc3, t, trailsAmount: number) {
 
   const data = imageData.data;
 
-  const timePerFrame = 1000 / 60;
-  const timePerPixel = timePerFrame / data.length;
+  const numPixels = data.length / 4;
+  const timePerFrame = 1000 / 24;
+  const timePerPixel = timePerFrame / numPixels;
 
-  const currentPixel = Math.floor(t / timePerPixel) % data.length;
+  const currentPixel = Math.floor(t / timePerPixel) % numPixels;
+  const frameStartTime = t - currentPixel * timePerPixel;
+
 
   for (let i = 0; i < data.length; i += 4) {
     const pastPixel: [number, number, number] = [getPast(i), getPast(i + 1), getPast(i + 2)];
@@ -108,14 +115,20 @@ function render(osc1, osc2, osc3, t, trailsAmount: number) {
     //   data[i + 2] = 255;
     //   data[i + 3] = 255
     // }
-    const adjustedT = t + (i - currentPixel) * timePerPixel;
+    // const adjustedT = i * timePerPixel;
+    // const adjustedT = t + (i - currentPixel) * timePerPixel;
+    const adjustedT = frameStartTime + i * timePerPixel;
 
-    const pixel = synth(
+    const synthOutput = synth(
       osc1,
       osc2,
       osc3,
-      pastPixel,
+      pastPixel[2] / 255,
       adjustedT,
+    );
+    const pixel = trails(
+      synthOutput,
+      pastPixel,
       trailsAmount
     );
 
@@ -133,7 +146,7 @@ function render(osc1, osc2, osc3, t, trailsAmount: number) {
 const cancel = startAnimationLoop((t) => {
   stats.begin();
 
-  const {trailsAmount} = trailsParameters;
+  const {trailsAmount} = otherParameters;
 
   const osc1Freq = freqFromParams(osc1Parameters.freqExp, osc1Parameters.freqFine);
   const osc2Freq = freqFromParams(osc2Parameters.freqExp, osc2Parameters.freqFine);

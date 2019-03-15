@@ -80,6 +80,8 @@ optimization seems to be a bit of a crap shoot. sometimes it stays above 50fps a
 
 something to check out: retrieving waveform on each render is ? -- seemed to lose a few fps there
 
+I moved a function up a couple levels and lost 10fps what gives
+
 #### types
 I miss elm types with switch statements
 
@@ -100,3 +102,7 @@ I guess you grab the inner part of the periodic function.
 in saw's case the periodic function is `%`
 in sin, `sin`
 the other waves are based on `saw` so we good
+
+
+
+I should really learn glsl
