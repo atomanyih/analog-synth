@@ -20,8 +20,8 @@ export const createOscFolder: (gui, name: string) => OscillatorParameters = (gui
   };
 
   oscFolder.add(oscParameters, 'freqExp', -3, 4);
-  oscFolder.add(oscParameters, 'freqFine', 0, 100);
-  oscFolder.add(oscParameters, 'freqExtraFine', 0, 100);
+  oscFolder.add(oscParameters, 'freqFine', -50, 50);
+  oscFolder.add(oscParameters, 'freqExtraFine', -50, 50);
   oscFolder.add(oscParameters, 'mod', 0, 1);
   oscFolder.add(oscParameters, 'mix', 0, 1);
   oscFolder.add(oscParameters, 'waveName', ['sin', 'square', 'saw', 'triangle']);
