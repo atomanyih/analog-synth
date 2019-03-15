@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "start": "parcel src/test/*.html src/index.html",
-    "build": "parcel build src/index.html -d docs"
+    "build:gh": "parcel build src/index.html -d docs --public-url '.'"
   },
   "author": "",
   "license": "ISC",
