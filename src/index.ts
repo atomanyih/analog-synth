@@ -7,12 +7,13 @@ import {freqFromParams} from "./freqFromParams";
 import {createOscFolder, state} from "./Parameters";
 import {getPast, saveImageData} from "./ThePast";
 import {getCanvas} from "./getCanvas";
+import {defaults} from './defaults';
 
 const otherParameters = {
   trailsAmount: 0,
 };
 
-const gui = new dat.GUI({name: 'hello'});
+const gui = new dat.GUI({load: defaults});
 
 gui.add(otherParameters, 'trailsAmount', 0, 1);
 
@@ -23,6 +24,12 @@ const {
 createOscFolder(gui, osc1Parameters, 'osc1');
 createOscFolder(gui, osc2Parameters, 'osc2');
 createOscFolder(gui, osc3Parameters, 'osc3');
+
+gui.remember(osc1Parameters);
+gui.remember(osc2Parameters);
+gui.remember(osc3Parameters);
+
+window.gui = gui;
 
 const stats = new Stats();
 stats.showPanel(0);
