@@ -1,4 +1,4 @@
-export const freqFromParams = (exp, fine) => {
+export const freqFromParams = ({freqExp: exp, freqFine: fine}) => {
   if(exp > 0) {
     const number = 100**exp;
     return number + fine *number/100

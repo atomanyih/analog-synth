@@ -148,9 +148,9 @@ const cancel = startAnimationLoop((t) => {
 
   const {trailsAmount} = otherParameters;
 
-  const osc1Freq = freqFromParams(osc1Parameters.freqExp, osc1Parameters.freqFine);
-  const osc2Freq = freqFromParams(osc2Parameters.freqExp, osc2Parameters.freqFine);
-  const osc3Freq = freqFromParams(osc3Parameters.freqExp, osc3Parameters.freqFine);
+  const osc1Freq = freqFromParams(osc1Parameters);
+  const osc2Freq = freqFromParams(osc2Parameters);
+  const osc3Freq = freqFromParams(osc3Parameters);
 
   const osc1Wave = waves[osc1Parameters.waveName];
   const osc2Wave = waves[osc2Parameters.waveName];
