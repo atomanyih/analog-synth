@@ -8,9 +8,13 @@ import {createOscFolder, state} from "./Parameters";
 import {getPast, saveImageData} from "./ThePast";
 import {getCanvas} from "./getCanvas";
 import {defaults} from './defaults';
+import {saw, triangle} from "./Waves";
 
 const otherParameters = {
   trailsAmount: 0,
+  lfoDest: '',
+  lfoAmount: 0.5,
+  lfoFreq: 1
 };
 
 const gui = new dat.GUI({load: defaults});
@@ -28,6 +32,10 @@ createOscFolder(gui, osc3Parameters, 'osc3');
 gui.remember(osc1Parameters);
 gui.remember(osc2Parameters);
 gui.remember(osc3Parameters);
+
+gui.add(otherParameters, 'lfoDest', Object.keys(osc1Parameters));
+gui.add(otherParameters, 'lfoAmount', 0, 1);
+gui.add(otherParameters, 'lfoFreq', -10, 4);
 
 window.gui = gui;
 
@@ -73,20 +81,20 @@ const dissolvePixel = (a, b, amount) => {
   return Math.random() > amount ? a : b
 };
 
-const oscillator = (wave, freq) => (mod, t) => wave(freq, mod, t);
+const oscillator = (wave, freq, modSetting) => (mod, t) => wave(freq, mod * modSetting, t);
 
 const synth = (osc1, osc2, osc3, osc1Mod, t) => {
   const osc1Val = osc1(
-    osc1Mod * osc1Parameters.mod,
+    osc1Mod,
     t
   );
   const osc2Val = osc2(
-    osc1Val * osc2Parameters.mod,
+    osc1Val,
     t
   );
 
   const osc3Val = osc3(
-    osc2Val * osc3Parameters.mod,
+    osc2Val,
     t
   );
 
@@ -128,6 +136,17 @@ function render(osc1, osc2, osc3, t, trailsAmount: number) {
     // const adjustedT = i * timePerPixel;
     // const adjustedT = t + (i - currentPixel) * timePerPixel;
     const adjustedT = frameStartTime + i * timePerPixel;
+    // if (i / 4 > currentPixel) {
+    //   data[i] = pastPixel[0];
+    //   data[i + 1] = pastPixel[1];
+    //   data[i + 2] = pastPixel[2];
+    //   data[i + 3] = 255;
+    //   break
+    // }
+
+    // if((i/4) % canvasWidth > (i/(canvasHeight * 4))) {
+    //   continue
+    // }
 
     const synthOutput = synth(
       osc1,
@@ -156,9 +175,17 @@ function render(osc1, osc2, osc3, t, trailsAmount: number) {
 const cancel = startAnimationLoop((t) => {
   stats.begin();
 
-  const {trailsAmount} = otherParameters;
+  const {trailsAmount, lfoFreq} = otherParameters;
 
-  const osc1Freq = freqFromParams(osc1Parameters);
+  const lfoVal = triangle(1 / (1000 ** -lfoFreq), 0, t);
+  const modulatedVal = osc1Parameters[otherParameters.lfoDest];
+  let osc1ParametersLfo = {
+    ...osc1Parameters,
+    [otherParameters.lfoDest]: modulatedVal + lfoVal * modulatedVal * otherParameters.lfoAmount
+  };
+  // osc1Parameters[otherParameters.lfoDest] = osc1Parameters[otherParameters.lfoDest] * lfoVal;
+
+  const osc1Freq = freqFromParams(osc1ParametersLfo);
   const osc2Freq = freqFromParams(osc2Parameters);
   const osc3Freq = freqFromParams(osc3Parameters);
 
@@ -166,9 +193,10 @@ const cancel = startAnimationLoop((t) => {
   const osc2Wave = waves[osc2Parameters.waveName];
   const osc3Wave = waves[osc3Parameters.waveName];
 
-  const osc1 = oscillator(osc1Wave, osc1Freq);
-  const osc2 = oscillator(osc2Wave, osc2Freq);
-  const osc3 = oscillator(osc3Wave, osc3Freq);
+  const osc1 = oscillator(osc1Wave, osc1Freq, osc1ParametersLfo.mod);
+  const osc2 = oscillator(osc2Wave, osc2Freq, osc2Parameters.mod);
+  const osc3 = oscillator(osc3Wave, osc3Freq, osc3Parameters.mod);
+
 
   render(osc1, osc2, osc3, t, trailsAmount);
 
